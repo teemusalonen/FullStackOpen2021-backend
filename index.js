@@ -28,6 +28,38 @@ persons = [
     }  
 ]
 
+const calculateId = () => {
+  const id = persons.length > 0
+    ? Math.max(...persons.map(p => p.id))
+    : 0
+  return id+1;
+}
+
+app.post('/api/persons', (req, res) => {
+  const body = req.body
+  // jos postattavaa contenttia ei ole, vastataan ongelmalla 
+  if(!body.name || !body.number){
+    return res.status(400).json({
+      error: 'Request contains too little information'
+    })
+  }
+
+  if(persons.find(p => p.name === body.name)){
+    return res.status(400).json({
+      error: 'Name must be unique'
+    })
+  }
+
+  const newPerson = {
+    name: body.name,
+    number: body.number,
+    id: calculateId()
+  }
+
+  persons = persons.concat(newPerson)
+
+  res.json(newPerson)
+})
 
 app.get('/', (req, res) => {
   res.send('<div> moi </div>')
