@@ -1,9 +1,26 @@
 
 const express = require('express')
+const morgan = require('morgan')
 
 const app = express()
 
 app.use(express.json())
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :getData'))
+
+morgan.token('getData', (req, res) => {
+    return JSON.stringify(req.body)
+})
+
+morgan((tokens, req, res) => {
+  return [
+    tokens.method(req, res),
+    tokens.url(req, res),
+    tokens.status(req, res),
+    tokens.res(req, res, 'content-length'), '-',
+    tokens['response-time'](req, res), 'ms',
+    tokens.getData(req, res)
+  ].join(' ')
+})
 
 persons = [
     {
@@ -75,7 +92,6 @@ app.get('/api/persons', (req, res) => {
 
 app.get('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id)
-  // käytä findia, älä filteriä!!!!
   const person = persons.find(p => p.id === id)
   // jos person ei ole null, palautetaan henkilö, jos on, palautetaan virhestatus
   person ? res.json(person) : res.status(404).end()
