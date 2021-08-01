@@ -81,11 +81,11 @@ app.post('/api/persons', (req, res) => {
 })
 
 app.get('/', (req, res) => {
-  res.send('<div> moi </div>')
+  res.send('<div> Backend :) </div>')
 })
 
 app.get('/info', (req, res) => {
-  res.send(`<div> <p> Phonebook has info for ${persons.length} people </p> <p> ${new Date()} </p> </div>`)
+  res.send(`<div> <p> Phonebook has info for ${<b>{persons.length}</b>} people </p> <p> ${new Date()} </p> </div>`)
 })
 
 app.get('/api/persons', (req, res) => {
