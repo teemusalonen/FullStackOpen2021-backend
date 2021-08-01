@@ -85,7 +85,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/info', (req, res) => {
-  res.send(`<div> <p> Phonebook has info for ${<b>{persons.length}</b>} people </p> <p> ${new Date()} </p> </div>`)
+  res.send(`<div> <p> Phonebook has info for <b> ${persons.length} </b> people </p> <p> ${new Date()} </p> </div>`)
 })
 
 app.get('/api/persons', (req, res) => {
