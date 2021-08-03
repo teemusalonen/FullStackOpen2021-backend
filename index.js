@@ -1,7 +1,8 @@
-
+require('dotenv').config()
 const express = require('express')
-const morgan = require('morgan')
 const cors = require('cors')
+const morgan = require('morgan')
+const Person = require('./models/person')
 
 const app = express()
 
@@ -23,9 +24,9 @@ morgan((tokens, req, res) => {
     tokens['response-time'](req, res), 'ms',
     tokens.getData(req, res)
   ].join(' ')
-})
+}) 
 
-persons = [
+/*persons = [
     {
       "name": "Arto Hellas",
       "number": "040-123456",
@@ -46,7 +47,7 @@ persons = [
       "number": "39-23-6423122",
       "id": 4
     }  
-]
+]*/
 
 const calculateId = () => {
   const id = persons.length > 0
@@ -81,16 +82,20 @@ app.post('/api/persons', (req, res) => {
   res.json(newPerson)
 })
 
-app.get('/', (req, res) => {
+/* app.get('/', (req, res) => {
   res.send('<div> Backend :) </div>')
-})
+})*/
 
 app.get('/info', (req, res) => {
   res.send(`<div> <p> Phonebook has info for <b> ${persons.length} </b> people </p> <p> ${new Date()} </p> </div>`)
 })
 
 app.get('/api/persons', (req, res) => {
+  Person.find({}).then(persons => {
     res.json(persons)
+    console.log("ei vituta enää:)")
+  }) 
+  
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -107,7 +112,7 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
