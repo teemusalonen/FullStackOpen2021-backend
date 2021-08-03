@@ -3,6 +3,7 @@ const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
 const Person = require('./models/person')
+const { response } = require('express')
 
 const app = express()
 
@@ -47,44 +48,39 @@ morgan((tokens, req, res) => {
       "number": "39-23-6423122",
       "id": 4
     }  
-]*/
+]
 
 const calculateId = () => {
   const id = persons.length > 0
     ? Math.max(...persons.map(p => p.id))
     : 0
   return id+1;
-}
+} */
 
 app.post('/api/persons', (req, res) => {
   const body = req.body
   // jos postattavaa contenttia ei ole, vastataan ongelmalla 
-  if(!body.name || !body.number){
+  if(!body.name | !body.number){
     return res.status(400).json({
       error: 'Request contains too little information'
     })
   }
 
-  if(persons.find(p => p.name === body.name)){
+  /*if(persons.find(p => p.name === body.name)){
     return res.status(400).json({
       error: 'Name must be unique'
     })
-  }
+  }*/
 
-  const newPerson = {
+  const newPerson = new Person({
     name: body.name,
-    number: body.number,
-    id: calculateId()
-  }
+    number: body.number
+  })
 
-  persons = persons.concat(newPerson)
-
-  res.json(newPerson)
+  newPerson.save().then(savedPerson => {
+    res.json(savedPerson)
+  }).catch((error) => console.log('Couldnt save:', error.message))
 })
-
-/* app.get('/', (req, res) => {
-  res.send('<div> Backend :) </div>')
-})*/
 
 app.get('/info', (req, res) => {
   res.send(`<div> <p> Phonebook has info for <b> ${persons.length} </b> people </p> <p> ${new Date()} </p> </div>`)
@@ -93,7 +89,6 @@ app.get('/info', (req, res) => {
 app.get('/api/persons', (req, res) => {
   Person.find({}).then(persons => {
     res.json(persons)
-    console.log("ei vituta enää:)")
   }) 
   
 })
