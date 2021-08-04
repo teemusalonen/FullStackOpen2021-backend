@@ -27,36 +27,6 @@ morgan((tokens, req, res) => {
   ].join(' ')
 }) 
 
-/*persons = [
-    {
-      "name": "Arto Hellas",
-      "number": "040-123456",
-      "id": 1
-    },
-    {
-      "name": "Ada Lovelace",
-      "number": "39-44-5323523",
-      "id": 2
-    },
-    {
-      "name": "Dan Abramov",
-      "number": "12-43-234345",
-      "id": 3
-    },
-    {
-      "name": "Mary Poppendieck",
-      "number": "39-23-6423122",
-      "id": 4
-    }  
-]
-
-const calculateId = () => {
-  const id = persons.length > 0
-    ? Math.max(...persons.map(p => p.id))
-    : 0
-  return id+1;
-} */
-
 app.post('/api/persons', (req, res) => {
   const body = req.body
   // jos postattavaa contenttia ei ole, vastataan ongelmalla 
@@ -101,9 +71,16 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
+  Person.findByIdAndDelete(req.params.id)
+    .then(result => {
+      res.status(204).end()
+    }).catch(error => {
+      console.log('not able to delete:', error.message)
+    })
+  
+  /*const id = Number(req.params.id)
   persons = persons.filter(person => person.id !== id)
-  res.status(204).end()
+  res.status(204).end()*/
 })
 
 
