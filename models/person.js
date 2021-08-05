@@ -12,7 +12,7 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFind
 const personSchema = new mongoose.Schema({
     name: String,
     number: String,
-    id: Number
+    id: String
 })
 
 // poistetaan ylimääräiset asiat

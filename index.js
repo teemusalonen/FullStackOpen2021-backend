@@ -3,7 +3,6 @@ const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
 const Person = require('./models/person')
-const { response } = require('express')
 
 const app = express()
 
@@ -27,62 +26,82 @@ morgan((tokens, req, res) => {
   ].join(' ')
 }) 
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
+
 app.post('/api/persons', (req, res) => {
-  const body = req.body
-  // jos postattavaa contenttia ei ole, vastataan ongelmalla 
+  const body = req.body 
+  
+  // Jos sisältö on puutteellinen, heitetään errori
+  
   if(!body.name | !body.number){
     return res.status(400).json({
       error: 'Request contains too little information'
     })
   }
 
-  /*if(persons.find(p => p.name === body.name)){
-    return res.status(400).json({
-      error: 'Name must be unique'
-    })
-  }*/
-
+  // Luodaan uusi Person requestin perusteella
   const newPerson = new Person({
-    name: body.name,
-    number: body.number
+      name: body.name,
+      number: body.number
   })
-
-  newPerson.save().then(savedPerson => {
-    res.json(savedPerson)
-  }).catch((error) => console.log('Couldnt save:', error.message))
-})
+    newPerson.save().then(savedPerson => {
+      res.json(savedPerson)
+    })
+    .catch((error) => console.log('Couldn\'t save:', error.message))
+    }
+)
 
 app.get('/info', (req, res) => {
-  res.send(`<div> <p> Phonebook has info for <b> ${persons.length} </b> people </p> <p> ${new Date()} </p> </div>`)
+  Person.find({}).then(persons => {
+    res.send(`<div> <p> Phonebook has info for <b> ${persons.length} </b> people </p> <p> ${new Date()} </p> </div>`).status(200).end()
+  })
 })
 
 app.get('/api/persons', (req, res) => {
   Person.find({}).then(persons => {
     res.json(persons)
   }) 
-  
 })
 
-app.get('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const person = persons.find(p => p.id === id)
-  // jos person ei ole null, palautetaan henkilö, jos on, palautetaan virhestatus
-  person ? res.json(person) : res.status(404).end()
+app.get('/api/persons/:id', (req, res, next) => {
+  Person.findById(req.params.id)
+    .then(person => {
+      // jos person ei ole null, palautetaan henkilö, jos on, palautetaan virhestatus
+      person ? res.json(person) : res.status(404).end()
+    })
+    .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
     .then(result => {
       res.status(204).end()
-    }).catch(error => {
-      console.log('not able to delete:', error.message)
-    })
-  
-  /*const id = Number(req.params.id)
-  persons = persons.filter(person => person.id !== id)
-  res.status(204).end()*/
+    }).catch(error => next(error))
 })
 
+app.put('/api/persons/:id', (req, res, next) => {
+  const body = req.body
+
+  const newPerson = {
+    name: body.name,
+    number: body.number
+  }
+  
+  Person.findByIdAndUpdate(req.params.id, newPerson, { new: true })
+    .then(updatedPerson => {
+      res.status(200).json(updatedPerson)
+    }).catch(error => next(error))
+})
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
