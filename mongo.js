@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 
 if(process.argv.length<3) {
-    console.log('Give password as an argument')
-    process.exit(1)
+  console.log('Give password as an argument')
+  process.exit(1)
 }
 
 const password = process.argv[2]
@@ -12,9 +12,9 @@ const url = `mongodb+srv://fullstack:${password}@fullstackopen2021.zs6qt.mongodb
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
 
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
-    id: Number
+  name: String,
+  number: String,
+  id: Number
 })
 
 const Person = mongoose.model('Person', personSchema)
@@ -31,28 +31,28 @@ const Person = mongoose.model('Person', personSchema)
 })*/
 
 if(process.argv.length === 3) {
-    console.log('Phonebook:')
-    console.log('')
-    Person.find({}).then(result => {
-        result.forEach(p => {
-            console.log(p.name, p.number)
-        })
-        mongoose.connection.close()
-        console.log('')
-        console.log('ready! =)')
+  console.log('Phonebook:')
+  console.log('')
+  Person.find({}).then(result => {
+    result.forEach(p => {
+      console.log(p.name, p.number)
     })
+    mongoose.connection.close()
+    console.log('')
+    console.log('ready! =)')
+  })
 }
 
 if(process.argv.length === 5) {
-    const na = process.argv[3]
-    const nu = process.argv[4]
+  const na = process.argv[3]
+  const nu = process.argv[4]
 
-    const p = new Person({
-        name: na,
-        number: nu
-    })
-    p.save().then(response => {
-        console.log(`Added ${p.name} number ${p.number} to the phonebook!`)
-        mongoose.connection.close()
-    })
+  const p = new Person({
+    name: na,
+    number: nu
+  })
+  p.save().then(response => {
+    console.log(`Added ${p.name} number ${p.number} to the phonebook!`)
+    mongoose.connection.close()
+  })
 }

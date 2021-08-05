@@ -12,7 +12,7 @@ app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :getData'))
 
 morgan.token('getData', (req, res) => {
-    return JSON.stringify(req.body)
+  return JSON.stringify(req.body)
 })
 
 morgan((tokens, req, res) => {
@@ -24,7 +24,7 @@ morgan((tokens, req, res) => {
     tokens['response-time'](req, res), 'ms',
     tokens.getData(req, res)
   ].join(' ')
-}) 
+})
 
 // Error handler middleware
 const errorHandler = (error, request, response, next) => {
@@ -33,20 +33,20 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).send({ error: 'malformatted id' })
   }
   if (error.name === 'ValidationError') {
-    console.log("error: ", error.message)
+    console.log('error: ', error.message)
     return response.status(400).json({ error: error.message })
-  } 
-  
-  next(error);
+  }
+
+  next(error)
 }
 
 app.post('/api/persons', (req, res, next) => {
-  const body = req.body 
-  
+  const body = req.body
+
   // Luodaan uusi Person requestin perusteella
   const newPerson = new Person({
-      name: body.name,
-      number: body.number
+    name: body.name,
+    number: body.number
   })
   newPerson
     .save()
@@ -55,7 +55,7 @@ app.post('/api/persons', (req, res, next) => {
       res.json(savedAndFormattedPerson)
     })
     .catch(error => next(error))
-  }
+}
 )
 
 app.get('/info', (req, res) => {
@@ -67,7 +67,7 @@ app.get('/info', (req, res) => {
 app.get('/api/persons', (req, res) => {
   Person.find({}).then(persons => {
     res.json(persons)
-  }) 
+  })
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
@@ -93,7 +93,7 @@ app.put('/api/persons/:id', (req, res, next) => {
     name: body.name,
     number: body.number
   }
-  
+
   Person.findByIdAndUpdate(req.params.id, newPerson, { new: true })
     .then(updatedPerson => {
       res.status(200).json(updatedPerson)
