@@ -26,39 +26,36 @@ morgan((tokens, req, res) => {
   ].join(' ')
 }) 
 
+// Error handler middleware
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
   }
-
-  next(error)
+  if (error.name === 'ValidationError') {
+    console.log("error.name: ", error.name)
+    return response.status(400).json({ error: error.message })
+  } 
+  
+  next(error);
 }
 
-app.use(errorHandler)
-
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body 
   
-  // Jos sisältö on puutteellinen, heitetään errori
-  
-  if(!body.name | !body.number){
-    return res.status(400).json({
-      error: 'Request contains too little information'
-    })
-  }
-
   // Luodaan uusi Person requestin perusteella
   const newPerson = new Person({
       name: body.name,
       number: body.number
   })
-    newPerson.save().then(savedPerson => {
-      res.json(savedPerson)
+  newPerson
+    .save()
+    .then(savedPerson => savedPerson.toJSON())
+    .then(savedAndFormattedPerson => {
+      res.json(savedAndFormattedPerson)
     })
-    .catch((error) => console.log('Couldn\'t save:', error.message))
-    }
+    .catch(error => next(error))
+  }
 )
 
 app.get('/info', (req, res) => {
@@ -77,7 +74,7 @@ app.get('/api/persons/:id', (req, res, next) => {
   Person.findById(req.params.id)
     .then(person => {
       // jos person ei ole null, palautetaan henkilö, jos on, palautetaan virhestatus
-      person ? res.json(person) : res.status(404).end()
+      person ? res.json(person) : res.status(400).end()
     })
     .catch(error => next(error))
 })
@@ -102,6 +99,8 @@ app.put('/api/persons/:id', (req, res, next) => {
       res.status(200).json(updatedPerson)
     }).catch(error => next(error))
 })
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {

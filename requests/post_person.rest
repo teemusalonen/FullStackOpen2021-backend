@@ -1,7 +1,7 @@
-POST https://tesa-fso-2021.herokuapp.com/api/persons
+POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-    "name": "koira kissanen",
-    "number": "982734-234"
+    "name": "dup",
+    "number": "1-234"
 }
